@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="admin.webmanifest">
+<link rel="apple-touch-icon" href="assets/admin-icon-180.png">
+<link rel="icon" href="assets/admin-icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="YDP Admin">
+<meta name="theme-color" content="#7A2E2E">
+<title>Add Content — Your Daily Presence</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .admin-wrap { max-width: 560px; margin: 0 auto; padding: 50px 28px 100px; }
+  .admin-wrap h1 { text-align: center; margin-bottom: 8px; }
+  .admin-wrap .sub { text-align: center; color: var(--ink-soft); margin-bottom: 36px; font-size: 0.92rem; }
+  .admin-field { margin-bottom: 18px; }
+  .admin-field label { display: block; font-size: 0.8rem; letter-spacing: 0.04em; color: var(--maroon); margin-bottom: 6px; }
+  .admin-field input, .admin-field textarea, .admin-field select {
+    width: 100%; box-sizing: border-box; font-family: 'Jost', sans-serif; font-size: 0.95rem;
+    color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+    padding: 10px 14px; outline: none;
+  }
+  .admin-field input:focus, .admin-field textarea:focus, .admin-field select:focus { border-color: var(--gold); }
+  .admin-field textarea { resize: vertical; min-height: 70px; }
+  .admin-btn {
+    display: block; width: 100%; font-family: 'Jost', sans-serif; font-size: 0.95rem; font-weight: 500;
+    color: #fff; background: var(--maroon); border: none; border-radius: 999px; padding: 13px;
+    cursor: pointer; transition: background .2s ease;
+  }
+  .admin-btn:hover { background: var(--gold); }
+  .output-box { margin-top: 28px; display: none; }
+  .output-box label { display: block; font-size: 0.8rem; letter-spacing: 0.04em; color: var(--maroon); margin-bottom: 8px; }
+  .output-box textarea {
+    width: 100%; box-sizing: border-box; font-family: monospace; font-size: 0.85rem; line-height: 1.5;
+    color: var(--ink); background: #fff; border: 1px solid var(--gold); border-radius: 6px;
+    padding: 14px; min-height: 150px; resize: vertical;
+  }
+  .copy-btn {
+    margin-top: 12px; display: inline-flex; align-items: center; gap: 7px;
+    font-family: 'Jost', sans-serif; font-size: 0.85rem; color: var(--maroon);
+    background: transparent; border: 1px solid var(--line); border-radius: 999px;
+    padding: 9px 18px; cursor: pointer; transition: border-color .2s ease, color .2s ease;
+  }
+  .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .copy-note { text-align: center; color: var(--ink-soft); font-size: 0.85rem; margin-top: 20px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.1">
+        <circle cx="16" cy="16" r="14"/>
+        <rect x="7" y="7" width="18" height="18" transform="rotate(45 16 16)"/>
+        <polygon points="16,9 23,21 9,21"/>
+        <circle cx="16" cy="16" r="3"/>
+      </svg>
+      <span>Your Daily Presence</span>
+    </a>
+  </div>
+</header>
+
+<main class="admin-wrap">
+  <h1>Add New Content</h1>
+  <p class="sub">Fill this in, tap Generate, then copy the text and send it to Claude — it'll be added on the next update.</p>
+
+  <div class="admin-field">
+    <label for="section-select">Section</label>
+    <select id="section-select">
+      <option value="books">Books</option>
+      <option value="quotes">Quotes</option>
+      <option value="audiobooks">Audiobooks</option>
+      <option value="music">Music</option>
+    </select>
+  </div>
+
+  <form id="entry-form">
+    <div id="dynamic-fields"></div>
+    <button type="submit" class="admin-btn">Generate</button>
+  </form>
+
+  <div class="output-box" id="output-box">
+    <label for="output-text">Copy this and send it to Claude:</label>
+    <textarea id="output-text" readonly></textarea>
+    <button type="button" class="copy-btn" id="copy-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="15" height="15">
+        <rect x="9" y="9" width="12" height="12" rx="2"/>
+        <path d="M5 15V5a2 2 0 012-2h10"/>
+      </svg>
+      <span id="copy-label">Copy to clipboard</span>
+    </button>
+    <p class="copy-note">Nothing is published from this page — it just writes out the details neatly for Claude to add.</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  const sectionSelect = document.getElementById('section-select');
+  const dynamicFields = document.getElementById('dynamic-fields');
+  const entryForm = document.getElementById('entry-form');
+  const outputBox = document.getElementById('output-box');
+  const outputText = document.getElementById('output-text');
+  const copyBtn = document.getElementById('copy-btn');
+  const copyLabel = document.getElementById('copy-label');
+
+  const FIELD_SETS = {
+    books: [
+      { key: 'title', label: 'Title', required: true },
+      { key: 'author', label: 'Author' },
+      { key: 'image', label: 'Image URL' },
+      { key: 'link', label: 'Link (Goodreads, store page, etc.)' },
+      { key: 'note', label: 'Note', type: 'textarea' },
+    ],
+    quotes: [
+      { key: 'title', label: 'Quote', required: true, type: 'textarea' },
+      { key: 'author', label: 'Source / Author' },
+      { key: 'symbol', label: 'Devanagari symbol (optional, e.g. \u0950)' },
+      { key: 'link', label: 'Link (optional)' },
+      { key: 'note', label: 'Your note', type: 'textarea' },
+    ],
+    audiobooks: [
+      { key: 'title', label: 'Title', required: true },
+      { key: 'byline', label: 'Author' },
+      { key: 'bio', label: 'Author bio', type: 'textarea' },
+      { key: 'quote', label: 'A short quote (optional)' },
+      { key: 'link', label: 'Audible link' },
+      { key: 'linkLabel', label: 'Link button text (e.g. "Listen to X by Y on Audible.")' },
+    ],
+    music: [
+      { key: 'title', label: 'Title', required: true },
+      { key: 'byline', label: 'Artist' },
+      { key: 'bio', label: 'Artist bio', type: 'textarea' },
+      { key: 'link', label: 'Link (Spotify, etc.)' },
+      { key: 'linkLabel', label: 'Link button text' },
+    ],
+  };
+
+  function renderFields(section) {
+    const fields = FIELD_SETS[section];
+    dynamicFields.innerHTML = fields.map(f => `
+      <div class="admin-field">
+        <label for="f-${f.key}">${f.label}${f.required ? ' *' : ''}</label>
+        ${f.type === 'textarea'
+          ? `<textarea id="f-${f.key}" ${f.required ? 'required' : ''}></textarea>`
+          : `<input type="text" id="f-${f.key}" ${f.required ? 'required' : ''}>`}
+      </div>
+    `).join('');
+    outputBox.style.display = 'none';
+  }
+
+  sectionSelect.addEventListener('change', () => renderFields(sectionSelect.value));
+  renderFields(sectionSelect.value);
+
+  entryForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const section = sectionSelect.value;
+    const fields = FIELD_SETS[section];
+
+    let lines = [`Please add this to the ${section.toUpperCase()} section of my site:`, ''];
+    fields.forEach(f => {
+      const val = document.getElementById('f-' + f.key).value.trim();
+      if (val) {
+        lines.push(`${f.label.replace(/ \*$/, '')}: ${val}`);
+      }
+    });
+
+    outputText.value = lines.join('\n');
+    outputBox.style.display = 'block';
+    outputBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(outputText.value);
+      copyLabel.textContent = 'Copied!';
+      setTimeout(() => { copyLabel.textContent = 'Copy to clipboard'; }, 1600);
+    } catch (err) {
+      outputText.focus();
+      outputText.select();
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

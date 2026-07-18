@@ -1,0 +1,834 @@
+/* ============================================================
+   yourdailypresence — shared styles
+   Design tokens
+   ------------------------------------------------------------
+   Background   #FAF6EE  (warm ivory)
+   Ink          #23283B  (deep indigo-black)
+   Gold         #B8863C  (marigold / turmeric)
+   Maroon       #7A2E2E  (sindoor / deep maroon)
+   Line         #DCD3BF  (soft sand hairline)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600&family=Noto+Serif+Devanagari:wght@400;600&display=swap');
+
+:root {
+  --bg: #FAF6EE;
+  --ink: #1F1108;
+  --gold: #B8863C;
+  --maroon: #7A2E2E;
+  --line: #DCD3BF;
+  --ink-soft: #4A3A2E;
+  --max: 760px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Jost', sans-serif;
+  font-weight: 400;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(250, 246, 238, 0.86), rgba(250, 246, 238, 0.9)),
+    url('https://commons.wikimedia.org/wiki/Special:FilePath/Shiva_as_the_Lord_of_Dance_LACMA_edit.jpg');
+  background-size: cover;
+  background-position: center 20%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+h1, h2, h3, .display {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+
+a { color: inherit; }
+
+.wrap {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* ---------- Header / nav ---------- */
+
+header.site {
+  padding: 40px 0 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.brand svg { width: 26px; height: 26px; }
+
+.brand span {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.04em;
+}
+
+nav.site {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 26px;
+  margin: 22px 0 36px;
+  font-size: 0.78rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 560px) {
+  nav.site {
+    gap: 10px 16px;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+}
+
+nav.site a {
+  text-decoration: none;
+  color: var(--ink-soft);
+  padding-bottom: 6px;
+  border-bottom: 1px solid transparent;
+  transition: color .2s ease, border-color .2s ease;
+}
+
+nav.site a:hover,
+nav.site a.active {
+  color: var(--maroon);
+  border-color: var(--gold);
+}
+
+/* ---------- Divider (signature mandala glyph) ---------- */
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 8px 0 44px;
+  color: var(--gold);
+}
+.divider::before,
+.divider::after {
+  content: "";
+  height: 1px;
+  width: 100%;
+  background: var(--line);
+}
+.divider svg { flex-shrink: 0; width: 20px; height: 20px; }
+
+/* ---------- Hero ---------- */
+
+.hero {
+  text-align: center;
+  padding: 10px 0 30px;
+  position: relative;
+}
+
+.hero .mandala-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  width: 620px;
+  height: 620px;
+  opacity: 0.05;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero .inner { position: relative; z-index: 1; }
+
+.hero .eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--maroon);
+  margin-bottom: 18px;
+}
+
+.hero h1 {
+  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  line-height: 1.15;
+}
+
+.hero p.tagline {
+  max-width: 480px;
+  margin: 22px auto 0;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+}
+
+.hero p.wip-note {
+  max-width: 540px;
+  margin: 26px auto 0;
+  padding: 18px 26px;
+  border: 1px solid var(--line);
+  color: var(--maroon);
+  font-size: 0.9rem;
+  font-style: italic;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+/* ---------- Section intro (used on category pages) ---------- */
+
+.section-intro {
+  text-align: center;
+  padding: 46px 0 6px;
+}
+.section-intro .eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--maroon);
+  margin-bottom: 14px;
+}
+.section-intro h1 { font-size: clamp(2rem, 5vw, 2.8rem); }
+.section-intro p {
+  max-width: 520px;
+  margin: 18px auto 0;
+  color: var(--ink-soft);
+}
+
+/* ---------- Category tiles on home ---------- */
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 60px;
+}
+
+.tile {
+  border: 1px solid var(--line);
+  padding: 30px 18px;
+  text-align: center;
+  text-decoration: none;
+  transition: border-color .2s ease, transform .2s ease;
+}
+.tile:hover { border-color: var(--gold); transform: translateY(-3px); }
+.tile svg { width: 30px; height: 30px; color: var(--gold); margin-bottom: 14px; }
+.tile h3 { font-size: 1.3rem; }
+.tile p { color: var(--ink-soft); font-size: 0.88rem; margin-top: 8px; }
+
+@media (max-width: 600px) {
+  .tiles { grid-template-columns: 1fr; }
+}
+
+/* ---------- Entry cards ---------- */
+
+.entries {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 60px;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: 108px 1fr;
+  gap: 24px;
+  padding: 30px 0;
+  border-bottom: 1px solid var(--line);
+}
+.entry:first-child { border-top: 1px solid var(--line); }
+
+.entry .thumb {
+  width: 108px;
+  height: 108px;
+  object-fit: cover;
+  background: #EFE9DB;
+  border: 1px solid var(--line);
+}
+
+.entry .thumb.symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+.entry .thumb.symbol span {
+  font-family: 'Noto Serif Devanagari', serif;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--gold);
+}
+
+.entry .meta {
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.entry h2 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.entry h2 a {
+  color: var(--maroon);
+  text-decoration: none;
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 1px;
+  transition: color .2s ease, border-color .2s ease;
+}
+
+.entry h2 a::after {
+  content: " ↗";
+  font-size: 0.75em;
+  color: var(--gold);
+}
+
+.entry h2 a:hover { color: var(--gold); border-color: var(--maroon); }
+
+.entry p.desc {
+  color: var(--ink-soft);
+  font-size: 0.96rem;
+}
+
+.entry .sub {
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 560px) {
+  .entry { grid-template-columns: 72px 1fr; gap: 16px; }
+  .entry .thumb { width: 72px; height: 72px; }
+  .entry .thumb.symbol span { font-size: 1.05rem; }
+}
+
+/* ---------- Footer ---------- */
+
+footer.site {
+  text-align: center;
+  padding: 40px 0 60px;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+}
+
+footer.site .om { color: var(--gold); margin-bottom: 10px; display: block; font-size: 1.1rem; }
+
+footer.site p { margin: 0 0 14px; }
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  color: var(--maroon);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: color .2s ease, border-color .2s ease;
+}
+.social-link svg { width: 17px; height: 17px; }
+.social-link:hover { color: var(--gold); border-color: var(--gold); }
+
+/* ---------- Empty state ---------- */
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+/* ---------- Focus visibility ---------- */
+a:focus-visible, .tile:focus-visible {
+  outline: 2px solid var(--maroon);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .tile { transition: none; }
+}
+
+/* ---------- Home: sacred sigil above heading ---------- */
+
+.hero .sigil {
+  color: var(--gold);
+  font-size: 1.4rem;
+  margin-bottom: 14px;
+  display: block;
+}
+
+/* ---------- Home: featured quote ---------- */
+
+.featured-quote {
+  max-width: 560px;
+  margin: 46px auto 60px;
+  text-align: center;
+  padding: 34px 30px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.featured-quote p.text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  color: var(--ink);
+  margin: 0;
+}
+
+.featured-quote p.source {
+  margin-top: 14px;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ---------- Author Spotlight (Books page) ---------- */
+
+.spotlight {
+  border: 1px solid var(--line);
+  padding: 40px 32px;
+  margin: 10px 0 56px;
+  position: relative;
+}
+
+.spotlight::before,
+.spotlight::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--gold);
+  opacity: 0.6;
+}
+.spotlight::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.spotlight::after  { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+.spotlight-header { text-align: center; margin-bottom: 30px; }
+
+.spotlight-header .eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--maroon);
+  margin-bottom: 10px;
+}
+
+.spotlight-header h2 {
+  font-size: 1.9rem;
+}
+.spotlight-header h2 .years {
+  font-size: 1rem;
+  color: var(--ink-soft);
+  font-family: 'Jost', sans-serif;
+  font-weight: 400;
+}
+
+.spotlight-header .bio {
+  max-width: 560px;
+  margin: 16px auto 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.spotlight-books {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+}
+
+.spotlight-book h3 {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+.spotlight-book h3 a {
+  color: var(--maroon);
+  text-decoration: none;
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 1px;
+}
+.spotlight-book h3 a::after {
+  content: " ↗";
+  font-size: 0.75em;
+  color: var(--gold);
+}
+.spotlight-book h3 a:hover { color: var(--gold); border-color: var(--maroon); }
+
+.spotlight-book h3 .year {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.spotlight-book p.desc {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.spotlight-book blockquote {
+  margin: 0;
+  padding-left: 14px;
+  border-left: 2px solid var(--gold);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .spotlight-books { grid-template-columns: 1fr; }
+  .spotlight { padding: 30px 22px; }
+}
+
+/* ---------- Audiobooks / Music entries ---------- */
+
+.audiobooks {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-bottom: 60px;
+}
+
+.audio-entry {
+  padding: 34px 0;
+  border-bottom: 1px solid var(--line);
+}
+.audio-entry:first-child { border-top: 1px solid var(--line); }
+
+.audio-entry h2 {
+  font-size: 1.6rem;
+  margin-bottom: 4px;
+}
+
+.audio-entry .sub {
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  margin-bottom: 14px;
+}
+
+.audio-entry .desc {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+
+.audio-entry blockquote {
+  margin: 0 0 14px;
+  padding-left: 16px;
+  border-left: 2px solid var(--gold);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+.audio-entry blockquote .attr {
+  display: block;
+  margin-top: 6px;
+  font-family: 'Jost', sans-serif;
+  font-style: normal;
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.audio-entry .reflection {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  margin: 0 0 10px;
+  padding-left: 16px;
+  border-left: 2px solid var(--line);
+}
+
+.listen-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  color: #fff;
+  background: var(--maroon);
+  border: 1px solid var(--maroon);
+  border-radius: 999px;
+  padding: 9px 18px;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.listen-link::after { content: "↗"; font-size: 0.9em; }
+.listen-link:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+}
+
+/* ---------- To Think About ---------- */
+
+.tta-book {
+  padding-bottom: 60px;
+}
+
+.tta-eyebrow {
+  text-align: center;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--maroon);
+  margin-bottom: 8px;
+}
+
+.tta-book h2 {
+  text-align: center;
+  font-size: 2rem;
+}
+
+.tta-listen {
+  text-align: center;
+  margin: 6px 0 30px;
+}
+
+.tta-byline {
+  text-align: center;
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 4px 0 28px;
+}
+
+.tta-bio, .tta-summary {
+  color: var(--ink-soft);
+  font-size: 0.96rem;
+  margin-bottom: 18px;
+}
+
+.tta-sections {
+  margin-top: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.tta-section {
+  border: 1px solid var(--line);
+  padding: 26px 28px;
+}
+
+.tta-section h3 {
+  font-size: 1.25rem;
+  color: var(--maroon);
+  margin-bottom: 14px;
+}
+
+.tta-section ol {
+  margin: 0;
+  padding-left: 22px;
+  color: var(--ink);
+}
+
+.tta-section li {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+.tta-section li:last-child { margin-bottom: 0; }
+
+@media (max-width: 560px) {
+  .tta-section { padding: 20px 18px; }
+}
+
+/* ---------- Myself page ---------- */
+
+.about-hero {
+  text-align: center;
+  padding: 20px 0 60px;
+}
+
+.about-photo {
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--gold);
+  box-shadow: 0 0 0 6px var(--bg), 0 0 0 7px var(--line);
+  margin-bottom: 26px;
+}
+
+.about-hero .eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--maroon);
+  margin-bottom: 12px;
+}
+
+.about-hero h1 {
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  margin-bottom: 26px;
+}
+
+.about-note {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 22px 28px;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 0.98rem;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+.about-signature {
+  margin-top: 22px;
+  color: var(--maroon);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .about-photo { width: 116px; height: 116px; }
+  .about-note { padding: 18px 20px; }
+}
+
+/* ---------- Search bar ---------- */
+
+.search-bar {
+  max-width: 420px;
+  margin: 0 auto 40px;
+  position: relative;
+}
+
+.search-bar input {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.92rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 11px 20px 11px 40px;
+  outline: none;
+  transition: border-color .2s ease;
+}
+.search-bar input::placeholder { color: var(--ink-soft); opacity: 0.7; }
+.search-bar input:focus { border-color: var(--gold); }
+
+.search-bar svg {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--ink-soft);
+  pointer-events: none;
+}
+
+.search-empty {
+  text-align: center;
+  padding: 20px 20px 40px;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+/* ---------- Today's Spotlight (home page) ---------- */
+
+.spotlight-today-card {
+  display: block;
+  max-width: 480px;
+  margin: 0 auto 56px;
+  text-decoration: none;
+  text-align: center;
+  border: 1px solid var(--line);
+  padding: 30px 28px;
+  position: relative;
+  transition: border-color .2s ease, transform .2s ease;
+}
+.spotlight-today-card:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.spotlight-today-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  padding: 4px 14px;
+  margin-bottom: 16px;
+}
+
+.spotlight-today-card h2 {
+  font-size: 1.5rem;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.spotlight-today-card p {
+  color: var(--ink-soft);
+  font-style: italic;
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+/* ---------- Quote of the Day ---------- */
+
+.qotd-eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 14px;
+}
+
+.shuffle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--maroon);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: border-color .2s ease, color .2s ease;
+}
+.shuffle-btn svg { width: 14px; height: 14px; }
+.shuffle-btn:hover { border-color: var(--gold); color: var(--gold); }

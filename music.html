@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music — Your Daily Presence</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.1">
+        <circle cx="16" cy="16" r="14"/>
+        <rect x="7" y="7" width="18" height="18" transform="rotate(45 16 16)"/>
+        <polygon points="16,9 23,21 9,21"/>
+        <circle cx="16" cy="16" r="3"/>
+      </svg>
+      <span>Your Daily Presence</span>
+    </a>
+    <nav class="site">
+      <a href="index.html">Home</a>
+      <a href="myself.html">Myself</a>
+      <a href="books.html">Books</a>
+      <a href="quotes.html">Quotes</a>
+      <a href="audiobooks.html">Audiobooks</a>
+      <a href="to-think-about.html">To Think About</a>
+      <a href="music.html" class="active">Music</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="section-intro">
+    <p class="eyebrow">Music</p>
+    <h1>Sound for stillness</h1>
+    <p>Chant, kirtan, and other music that sets the tone for meditation and quiet moments.</p>
+  </section>
+
+  <div class="divider">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+      <circle cx="12" cy="6" r="4"/><circle cx="12" cy="18" r="4"/>
+      <circle cx="6" cy="12" r="4"/><circle cx="18" cy="12" r="4"/>
+      <circle cx="8.5" cy="8.5" r="4"/><circle cx="15.5" cy="8.5" r="4"/>
+      <circle cx="8.5" cy="15.5" r="4"/><circle cx="15.5" cy="15.5" r="4"/>
+    </svg>
+  </div>
+
+  <div class="audiobooks" id="music"></div>
+</main>
+
+<footer class="site">
+  <span class="om">ॐ</span>
+  <p>yourdailypresence.com</p>
+  <a class="social-link" href="https://www.instagram.com/yourdailypresence" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+      <rect x="3" y="3" width="18" height="18" rx="5"/>
+      <circle cx="12" cy="12" r="4.2"/>
+      <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/>
+    </svg>
+    <span>@yourdailypresence</span>
+  </a>
+</footer>
+
+<script src="data.js"></script>
+<script src="render.js"></script>
+<script>
+  renderAudiobooks('music', MUSIC);
+</script>
+</body>
+</html>
