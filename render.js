@@ -117,6 +117,89 @@ function renderToThinkAbout(containerId, data) {
       ${b.bio ? `<p class="tta-bio">${b.bio}</p>` : ''}
       ${b.summary ? `<p class="tta-summary">${b.summary}</p>` : ''}
       ${listenHtml}
+      <div class="tta-sections">${sectionsHtml}</div>  if (!el || !spotlight) return;
+
+  const booksHtml = spotlight.books.map(b => {
+    const titleHtml = b.link
+      ? `<a href="${b.link}" target="_blank" rel="noopener noreferrer">${b.title}</a>`
+      : b.title;
+    return `
+      <div class="spotlight-book">
+        <h3>${titleHtml} <span class="year">${b.year || ''}</span></h3>
+        <p class="desc">${b.note || ''}</p>
+        ${b.quote ? `<blockquote>&ldquo;${b.quote}&rdquo;</blockquote>` : ''}
+      </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="spotlight-header">
+      <p class="eyebrow">Author Spotlight</p>
+      <h2>${spotlight.name} <span class="years">${spotlight.years || ''}</span></h2>
+      <p class="bio">${spotlight.bio || ''}</p>
+    </div>
+    <div class="spotlight-books">${booksHtml}</div>
+  `;
+}
+
+function renderAudiobooks(containerId, list) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  if (!list || list.length === 0) {
+    el.innerHTML = '<p class="empty">Nothing added here yet.</p>';
+    return;
+  }
+
+  el.innerHTML = list.map(item => {
+    const linkHtml = item.link
+      ? `<a class="listen-link" href="${item.link}" target="_blank" rel="noopener noreferrer">${item.linkLabel || ('Listen to ' + item.title)}</a>`
+      : '';
+    const quoteHtml = item.quote
+      ? `<blockquote>&ldquo;${item.quote}&rdquo;<span class="attr">— ${item.byline || ''}, <em>${item.title}</em></span></blockquote>`
+      : '';
+    const reflectionsHtml = (item.reflections || []).map(r =>
+      `<p class="reflection">${r}</p>`
+    ).join('');
+
+    return `
+      <article class="audio-entry">
+        <h2>${item.title}</h2>
+        ${item.byline ? `<p class="sub">${item.byline}</p>` : ''}
+        ${item.bio ? `<p class="desc">${item.bio}</p>` : ''}
+        ${quoteHtml}
+        ${reflectionsHtml}
+        ${linkHtml}
+      </article>`;
+  }).join('');
+}
+
+function renderToThinkAbout(containerId, data) {
+  const el = document.getElementById(containerId);
+  if (!el || !data || !data.book) return;
+
+  const b = data.book;
+
+  const sectionsHtml = (b.sections || []).map(sec => `
+    <div class="tta-section">
+      <h3>${sec.title}</h3>
+      <ol>
+        ${sec.items.map(item => `<li>${item}</li>`).join('')}
+      </ol>
+    </div>
+  `).join('');
+
+  const listenHtml = b.link
+    ? `<div class="tta-listen"><a class="listen-link" href="${b.link}" target="_blank" rel="noopener noreferrer">${b.linkLabel || ('Listen to ' + b.title)}</a></div>`
+    : '';
+
+  el.innerHTML = `
+    <article class="tta-book">
+      <p class="tta-eyebrow">${b.year || ''}</p>
+      <h2>${b.title}</h2>
+      <p class="tta-byline">${b.author || ''}</p>
+      ${b.bio ? `<p class="tta-bio">${b.bio}</p>` : ''}
+      ${b.summary ? `<p class="tta-summary">${b.summary}</p>` : ''}
+      ${listenHtml}
       <div class="tta-sections">${sectionsHtml}</div>
     </article>
   `;
