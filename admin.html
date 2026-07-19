@@ -10,10 +10,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="YDP Admin">
 <meta name="theme-color" content="#7A2E2E">
-<title>Add Content — Your Daily Presence</title>
+<title>Admin — Your Daily Presence</title>
 <link rel="stylesheet" href="style.css">
 <style>
-  .admin-wrap { max-width: 560px; margin: 0 auto; padding: 50px 28px 100px; }
+  .admin-wrap { max-width: 560px; margin: 0 auto; padding: 60px 28px 100px; }
   .admin-wrap h1 { text-align: center; margin-bottom: 8px; }
   .admin-wrap .sub { text-align: center; color: var(--ink-soft); margin-bottom: 36px; font-size: 0.92rem; }
   .admin-field { margin-bottom: 18px; }
@@ -31,10 +31,372 @@
     cursor: pointer; transition: background .2s ease;
   }
   .admin-btn:hover { background: var(--gold); }
-  .output-box { margin-top: 28px; display: none; }
-  .output-box label { display: block; font-size: 0.8rem; letter-spacing: 0.04em; color: var(--maroon); margin-bottom: 8px; }
-  .output-box textarea {
-    width: 100%; box-sizing: border-box; font-family: monospace; font-size: 0.85rem; line-height: 1.5;
+  .admin-btn-secondary { background: transparent; border: 1px solid var(--line); color: var(--ink-soft); margin-top: 10px; }
+  .admin-btn-secondary:hover { background: transparent; border-color: var(--maroon); color: var(--maroon); }
+  .admin-msg { text-align: center; margin-top: 18px; font-size: 0.9rem; }
+  .admin-msg.error { color: #a33; }
+  .admin-msg.success { color: #3a7d3a; }
+  #gate-screen, #form-screen { display: none; }
+  .tabs { display: flex; gap: 10px; margin: 40px 0 18px; }
+  .tab-btn {
+    flex: 1; font-family: 'Jost', sans-serif; font-size: 0.85rem; padding: 10px;
+    border: 1px solid var(--line); background: transparent; border-radius: 999px; cursor: pointer; color: var(--ink-soft);
+  }
+  .tab-btn.active { background: var(--maroon); color: #fff; border-color: var(--maroon); }
+  .list-section { display: none; }
+  .list-section.active { display: block; }
+  .recent-item { border: 1px solid var(--line); padding: 12px 16px; margin-bottom: 8px; font-size: 0.88rem; }
+  .recent-item.is-archived { opacity: 0.6; }
+  .recent-item .rtag { color: var(--gold); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.08em; }
+  .recent-actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .mini-btn {
+    font-family: 'Jost', sans-serif; font-size: 0.76rem; letter-spacing: 0.04em;
+    background: transparent; border: 1px solid var(--line); border-radius: 999px;
+    padding: 5px 14px; cursor: pointer; color: var(--ink-soft); transition: border-color .2s ease, color .2s ease;
+  }
+  .mini-btn:hover { border-color: var(--gold); color: var(--maroon); }
+  .mini-btn.danger:hover { border-color: #a33; color: #a33; }
+  .empty-note { text-align: center; color: var(--ink-soft); font-style: italic; padding: 20px; }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.1">
+        <circle cx="16" cy="16" r="14"/>
+        <rect x="7" y="7" width="18" height="18" transform="rotate(45 16 16)"/>
+        <polygon points="16,9 23,21 9,21"/>
+        <circle cx="16" cy="16" r="3"/>
+      </svg>
+      <span>Your Daily Presence</span>
+    </a>
+  </div>
+</header>
+
+<main class="admin-wrap">
+
+  <div id="gate-screen">
+    <h1>Admin</h1>
+    <p class="sub">Enter your password to manage content.</p>
+    <div class="admin-field">
+      <label for="gate-password">Password</label>
+      <input type="password" id="gate-password" autocomplete="current-password">
+    </div>
+    <button class="admin-btn" id="gate-submit">Unlock</button>
+    <p class="admin-msg error" id="gate-error"></p>
+  </div>
+
+  <div id="form-screen">
+    <h1 id="form-heading">Add New Content</h1>
+    <p class="sub">Published entries show up on the live site right away — no deploy needed.</p>
+
+    <div class="admin-field">
+      <label for="section-select">Section</label>
+      <select id="section-select">
+        <option value="books">Books</option>
+        <option value="quotes">Quotes</option>
+        <option value="audiobooks">Audiobooks</option>
+        <option value="music">Music</option>
+      </select>
+    </div>
+
+    <form id="entry-form">
+      <div id="dynamic-fields"></div>
+      <button type="submit" class="admin-btn" id="submit-btn">Publish</button>
+      <button type="button" class="admin-btn admin-btn-secondary" id="cancel-edit-btn" style="display:none;">Cancel Edit</button>
+    </form>
+    <p class="admin-msg" id="form-msg"></p>
+
+    <div class="tabs">
+      <button type="button" class="tab-btn active" data-tab="active">Active</button>
+      <button type="button" class="tab-btn" data-tab="archived">Archived</button>
+    </div>
+
+    <div class="list-section active" id="tab-active"></div>
+    <div class="list-section" id="tab-archived"></div>
+  </div>
+
+</main>
+
+<footer class="site">
+  <span class="om">ॐ</span>
+  <p>yourdailypresence.com</p>
+</footer>
+
+<script>
+(function () {
+  const ENDPOINT = '/api/entries';
+  let currentPassword = '';
+  let allEntries = {};
+  let editing = null;
+  let activeTab = 'active';
+
+  const gateScreen = document.getElementById('gate-screen');
+  const formScreen = document.getElementById('form-screen');
+  const gatePassword = document.getElementById('gate-password');
+  const gateError = document.getElementById('gate-error');
+  const sectionSelect = document.getElementById('section-select');
+  const dynamicFields = document.getElementById('dynamic-fields');
+  const entryForm = document.getElementById('entry-form');
+  const formMsg = document.getElementById('form-msg');
+  const submitBtn = document.getElementById('submit-btn');
+  const cancelEditBtn = document.getElementById('cancel-edit-btn');
+  const formHeading = document.getElementById('form-heading');
+  const tabActive = document.getElementById('tab-active');
+  const tabArchived = document.getElementById('tab-archived');
+
+  const FIELD_SETS = {
+    books: [
+      { key: 'title', label: 'Title', required: true },
+      { key: 'author', label: 'Author' },
+      { key: 'image', label: 'Image URL' },
+      { key: 'link', label: 'Link (Goodreads, store page, etc.)' },
+      { key: 'note', label: 'Note', type: 'textarea' },
+    ],
+    quotes: [
+      { key: 'title', label: 'Quote', required: true, type: 'textarea' },
+      { key: 'author', label: 'Source / Author' },
+      { key: 'symbol', label: 'Devanagari symbol (optional, e.g. ॐ)' },
+      { key: 'link', label: 'Link (optional)' },
+      { key: 'note', label: 'Your note', type: 'textarea' },
+    ],
+    audiobooks: [
+      { key: 'title', label: 'Title', required: true },
+      { key: 'byline', label: 'Author' },
+      { key: 'bio', label: 'Author bio', type: 'textarea' },
+      { key: 'quote', label: 'A short quote (optional)' },
+      { key: 'link', label: 'Audible link' },
+      { key: 'linkLabel', label: 'Link button text' },
+    ],
+    music: [
+      { key: 'title', label: 'Title', required: true },
+      { key: 'byline', label: 'Artist' },
+      { key: 'bio', label: 'Artist bio', type: 'textarea' },
+      { key: 'link', label: 'Link (Spotify, etc.)' },
+      { key: 'linkLabel', label: 'Link button text' },
+    ],
+  };
+
+  function renderFields(section, values) {
+    const fields = FIELD_SETS[section];
+    dynamicFields.innerHTML = fields.map(f => `
+      <div class="admin-field">
+        <label for="f-${f.key}">${f.label}${f.required ? ' *' : ''}</label>
+        ${f.type === 'textarea'
+          ? `<textarea id="f-${f.key}" ${f.required ? 'required' : ''}></textarea>`
+          : `<input type="text" id="f-${f.key}" ${f.required ? 'required' : ''}>`}
+      </div>
+    `).join('');
+    if (values) {
+      fields.forEach(f => {
+        const el = document.getElementById('f-' + f.key);
+        if (el) el.value = values[f.key] || '';
+      });
+    }
+  }
+
+  function enterEditMode(section, id) {
+    const item = (allEntries[section] || []).find(e => e.id === id);
+    if (!item) return;
+    editing = { section, id };
+    sectionSelect.value = section;
+    sectionSelect.disabled = true;
+    renderFields(section, item);
+    submitBtn.textContent = 'Update';
+    cancelEditBtn.style.display = 'block';
+    formHeading.textContent = 'Edit Entry';
+    formMsg.textContent = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function exitEditMode() {
+    editing = null;
+    sectionSelect.disabled = false;
+    renderFields(sectionSelect.value);
+    submitBtn.textContent = 'Publish';
+    cancelEditBtn.style.display = 'none';
+    formHeading.textContent = 'Add New Content';
+    entryForm.reset();
+  }
+
+  cancelEditBtn.addEventListener('click', exitEditMode);
+  sectionSelect.addEventListener('change', () => renderFields(sectionSelect.value));
+  renderFields(sectionSelect.value);
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTab = btn.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      tabActive.classList.toggle('active', activeTab === 'active');
+      tabArchived.classList.toggle('active', activeTab === 'archived');
+    });
+  });
+
+  document.getElementById('gate-submit').addEventListener('click', async () => {
+    const pw = gatePassword.value;
+    if (!pw) return;
+    currentPassword = pw;
+    gateError.textContent = '';
+    gateScreen.style.display = 'none';
+    formScreen.style.display = 'block';
+    loadEntries();
+  });
+
+  gatePassword.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('gate-submit').click();
+  });
+
+  entryForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const section = sectionSelect.value;
+    const fields = FIELD_SETS[section];
+    const entry = {};
+    fields.forEach(f => {
+      entry[f.key] = document.getElementById('f-' + f.key).value.trim();
+    });
+
+    formMsg.className = 'admin-msg';
+    formMsg.textContent = editing ? 'Updating...' : 'Publishing...';
+
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: editing ? 'PUT' : 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(editing
+          ? { password: currentPassword, section, id: editing.id, entry }
+          : { password: currentPassword, section, entry }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        formMsg.className = 'admin-msg error';
+        formMsg.textContent = data.error || 'Something went wrong.';
+        if (res.status === 401) {
+          setTimeout(() => {
+            formScreen.style.display = 'none';
+            gateScreen.style.display = 'block';
+            gateError.textContent = 'Incorrect password.';
+            gatePassword.value = '';
+            gatePassword.focus();
+          }, 1200);
+        }
+        return;
+      }
+
+      formMsg.className = 'admin-msg success';
+      formMsg.textContent = editing ? 'Updated!' : 'Published! It\'s live on the site now.';
+      exitEditMode();
+      loadEntries();
+    } catch (err) {
+      formMsg.className = 'admin-msg error';
+      formMsg.textContent = 'Network error — please try again.';
+    }
+  });
+
+  async function setArchived(section, id, archived) {
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ password: currentPassword, section, id, entry: { archived } }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || 'Could not update that entry.');
+        return;
+      }
+      loadEntries();
+    } catch (err) {
+      alert('Network error — please try again.');
+    }
+  }
+
+  async function deleteEntry(section, id, title) {
+    if (!confirm(`Permanently delete "${title}"? This can't be undone.`)) return;
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: 'DELETE',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ password: currentPassword, section, id }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || 'Could not delete that entry.');
+        return;
+      }
+      if (editing && editing.section === section && editing.id === id) exitEditMode();
+      loadEntries();
+    } catch (err) {
+      alert('Network error — please try again.');
+    }
+  }
+
+  function itemCard(section, item) {
+    const archived = !!item.archived;
+    return `
+      <div class="recent-item ${archived ? 'is-archived' : ''}">
+        <span class="rtag">${section}</span><br>
+        ${item.title}
+        <div class="recent-actions">
+          <button type="button" class="mini-btn" data-action="edit" data-section="${section}" data-id="${item.id}">Edit</button>
+          ${archived
+            ? `<button type="button" class="mini-btn" data-action="unarchive" data-section="${section}" data-id="${item.id}">Unarchive</button>`
+            : `<button type="button" class="mini-btn" data-action="archive" data-section="${section}" data-id="${item.id}">Archive</button>`}
+          <button type="button" class="mini-btn danger" data-action="delete" data-section="${section}" data-id="${item.id}" data-title="${(item.title || '').replace(/"/g, '&quot;')}">Delete</button>
+        </div>
+      </div>`;
+  }
+
+  function wireActions(container) {
+    container.querySelectorAll('.mini-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const { action, section, id, title } = btn.dataset;
+        if (action === 'edit') enterEditMode(section, id);
+        if (action === 'archive') setArchived(section, id, true);
+        if (action === 'unarchive') setArchived(section, id, false);
+        if (action === 'delete') deleteEntry(section, id, title);
+      });
+    });
+  }
+
+  async function loadEntries() {
+    try {
+      const res = await fetch(ENDPOINT, { headers: { 'x-admin-password': currentPassword } });
+      const data = await res.json();
+      allEntries = data;
+
+      const activeItems = [];
+      const archivedItems = [];
+      Object.keys(data).forEach(section => {
+        (data[section] || []).forEach(item => {
+          (item.archived ? archivedItems : activeItems).push({ section, item });
+        });
+      });
+      activeItems.sort((a, b) => new Date(b.item.addedAt || 0) - new Date(a.item.addedAt || 0));
+      archivedItems.sort((a, b) => new Date(b.item.addedAt || 0) - new Date(a.item.addedAt || 0));
+
+      tabActive.innerHTML = activeItems.length
+        ? activeItems.map(r => itemCard(r.section, r.item)).join('')
+        : '<p class="empty-note">Nothing here yet.</p>';
+      tabArchived.innerHTML = archivedItems.length
+        ? archivedItems.map(r => itemCard(r.section, r.item)).join('')
+        : '<p class="empty-note">No archived entries.</p>';
+
+      wireActions(tabActive);
+      wireActions(tabArchived);
+    } catch (err) {
+      tabActive.innerHTML = '<p class="empty-note">Could not load entries.</p>';
+    }
+  }
+
+  gateScreen.style.display = 'block';
+})();
+</script>
+
+</body>
+</html>    width: 100%; box-sizing: border-box; font-family: monospace; font-size: 0.85rem; line-height: 1.5;
     color: var(--ink); background: #fff; border: 1px solid var(--gold); border-radius: 6px;
     padding: 14px; min-height: 150px; resize: vertical;
   }
