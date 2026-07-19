@@ -309,3 +309,15 @@ function shuffleQuoteOfDay(textId, sourceId) {
   _qotdCurrentIndex = next;
   paintQuoteOfDay(textId, sourceId);
 }
+// ---------- Dynamic content added via /admin.html ----------
+
+async function fetchDynamicEntries(section) {
+  try {
+    const res = await fetch('/api/entries');
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data && data[section]) || [];
+  } catch (err) {
+    return [];
+  }
+}
