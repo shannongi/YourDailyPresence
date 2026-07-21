@@ -30,6 +30,8 @@ function renderEntries(containerId, list, subLabelKey) {
         </div>
       </article>`;
   }).join('');
+
+  revealOnScroll();
 }
 
 function renderSpotlight(containerId, spotlight) {
@@ -56,6 +58,8 @@ function renderSpotlight(containerId, spotlight) {
     </div>
     <div class="spotlight-books">${booksHtml}</div>
   `;
+
+  revealOnScroll();
 }
 
 function renderAudiobooks(containerId, list) {
@@ -88,6 +92,8 @@ function renderAudiobooks(containerId, list) {
         ${linkHtml}
       </article>`;
   }).join('');
+
+  revealOnScroll();
 }
 
 function renderToThinkAbout(containerId, data) {
@@ -120,6 +126,8 @@ function renderToThinkAbout(containerId, data) {
       <div class="tta-sections">${sectionsHtml}</div>
     </article>
   `;
+
+  revealOnScroll();
 }
 
 // Live search — filters the already-rendered cards in one or more containers
@@ -226,6 +234,57 @@ function shuffleQuoteOfDay(textId, sourceId) {
   _qotdCurrentIndex = next;
   paintQuoteOfDay(textId, sourceId);
 }
+
+// ---------- Sticky header shadow-on-scroll ----------
+
+function initHeaderScrollState() {
+  const header = document.querySelector('header.site');
+  if (!header) return;
+  const update = () => header.classList.toggle('is-scrolled', window.scrollY > 12);
+  update();
+  window.addEventListener('scroll', update, { passive: true });
+}
+
+// ---------- Gentle scroll-reveal for cards/entries ----------
+// Called both on DOMContentLoaded (for content already in the page) and again
+// after any async render (fetchDynamicEntries results land after DOMContentLoaded),
+// so cards fade in either way. Elements already handled are skipped.
+
+let _revealObserver; // undefined = not yet decided, false = disabled, object = active
+
+function getRevealObserver() {
+  if (_revealObserver === undefined) {
+    _revealObserver = (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window))
+      ? false
+      : new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              _revealObserver.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  }
+  return _revealObserver;
+}
+
+function revealOnScroll() {
+  const observer = getRevealObserver();
+  if (!observer) return; // reduced motion or unsupported: leave elements at full opacity
+
+  document.querySelectorAll(
+    '.entry, .tile, .audio-entry, .tta-section, .spotlight, .featured-quote, .spotlight-today-card'
+  ).forEach(t => {
+    if (t.classList.contains('reveal')) return; // already observed
+    t.classList.add('reveal');
+    observer.observe(t);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initHeaderScrollState();
+  revealOnScroll();
+});
 
 // ---------- Dynamic content added via /admin.html ----------
 
