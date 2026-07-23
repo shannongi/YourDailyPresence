@@ -32,6 +32,7 @@ const BOOKS = [
     title: "The Alchemist",
     author: "Paulo Coelho",
     image: "",
+    symbol: "नियति",
     link: "",
     note: "A short novel about listening to what actually calls you, instead of what's expected of you."
   },
@@ -39,6 +40,7 @@ const BOOKS = [
     title: "Autobiography of a Yogi",
     author: "Paramahansa Yogananda",
     image: "",
+    symbol: "साधक",
     link: "https://a.co/d/0jhpH0DJ",
     note: "Part memoir, part spiritual field guide. I keep coming back to the chapters on stillness."
   },
