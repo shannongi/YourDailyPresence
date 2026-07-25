@@ -28,7 +28,7 @@
 
 import { getStore } from "npm:@netlify/blobs@8";
 
-const SECTIONS = ["books", "quotes", "audiobooks", "music"];
+const SECTIONS = ["books", "quotes", "audiobooks", "music", "photography"];
 const STORE_NAME = "content";
 const KEY = "entries";
 
@@ -38,9 +38,15 @@ const CORS = {
 };
 
 async function readAll(store: any) {
-  const existing = await store.get(KEY, { type: "json" });
-  if (existing) return existing;
-  return { books: [], quotes: [], audiobooks: [], music: [] };
+  // Merge onto SECTIONS (rather than trusting the stored shape) so a
+  // section added after data already exists in the live store — like
+  // "photography" — still comes back as an array instead of undefined.
+  const existing = (await store.get(KEY, { type: "json" })) || {};
+  const all: Record<string, any[]> = {};
+  for (const section of SECTIONS) {
+    all[section] = existing[section] || [];
+  }
+  return all;
 }
 
 function checkPassword(password: string | null | undefined) {

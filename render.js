@@ -11,15 +11,29 @@ function renderEntries(containerId, list, subLabelKey) {
   }
 
   el.innerHTML = list.map(item => {
-    const img = item.image
-      ? `<img class="thumb" src="${item.image}" alt="${item.title}">`
+    const images = entryImages(item);
+    const img = images.length
+      ? (images.length > 1
+          ? `<div class="thumb-row">${images.map(src => `<img class="thumb" src="${src}" alt="${item.title}">`).join('')}</div>`
+          : `<img class="thumb" src="${images[0]}" alt="${item.title}">`)
       : (item.symbol
           ? `<div class="thumb symbol" aria-hidden="true"><span>${item.symbol}</span></div>`
           : `<div class="thumb" aria-hidden="true"></div>`);
+
+    const links = entryLinks(item);
+    const primary = links[0];
+    const extraLinks = links.slice(1);
+
     const sub = item[subLabelKey] ? `<p class="sub">${item[subLabelKey]}</p>` : '';
-    const titleHtml = item.link
-      ? `<h2><a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a></h2>`
+    const titleHtml = primary
+      ? `<h2><a href="${primary.url}" target="_blank" rel="noopener noreferrer">${item.title}</a></h2>`
       : `<h2>${item.title}</h2>`;
+    const extraLinksHtml = extraLinks.length
+      ? `<div class="extra-links">${extraLinks.map(l =>
+          `<a class="extra-link" href="${l.url}" target="_blank" rel="noopener noreferrer">${l.label || 'More'} ↗</a>`
+        ).join('')}</div>`
+      : '';
+
     return `
       <article class="entry">
         ${img}
@@ -27,11 +41,125 @@ function renderEntries(containerId, list, subLabelKey) {
           ${titleHtml}
           ${sub}
           <p class="desc">${item.note || ''}</p>
+          ${extraLinksHtml}
         </div>
       </article>`;
   }).join('');
 
   revealOnScroll();
+}
+
+// Reads either the new `images: [...]` array (added via the admin's
+// repeatable image fields) or falls back to the old single `image` string
+// so existing entries in data.js (and anything already saved before this
+// feature existed) keep working unchanged.
+function entryImages(item) {
+  if (item.images && item.images.length) return item.images;
+  if (item.image) return [item.image];
+  return [];
+}
+
+// Same idea for links: the new `links: [{ url, label }]` array, or a
+// fallback built from the old single `link` (+ optional `linkLabel`).
+function entryLinks(item) {
+  if (item.links && item.links.length) return item.links;
+  if (item.link) return [{ url: item.link, label: item.linkLabel || '' }];
+  return [];
+}
+
+// ---------- Photography: random thumbnail strip (home page tile) ----------
+
+function renderRandomPhotoThumbs(containerId, list, count) {
+  const el = document.getElementById(containerId);
+  if (!el || !list || list.length === 0) return;
+
+  const shuffled = list.slice().sort(() => Math.random() - 0.5);
+  const picks = shuffled.slice(0, count);
+
+  el.innerHTML = picks.map(item => {
+    const src = entryImages(item)[0] || '';
+    const alt = (item.title || '').replace(/"/g, '&quot;');
+    return `<img src="${src}" alt="${alt}" loading="lazy">`;
+  }).join('');
+}
+
+// ---------- Photography grid + lightbox ----------
+
+function renderPhotos(containerId, list) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  if (!list || list.length === 0) {
+    el.innerHTML = '<p class="empty">No photos added here yet.</p>';
+    return;
+  }
+
+  el.innerHTML = list.map((item, i) => {
+    const cover = entryImages(item)[0] || '';
+    const caption = item.caption || item.title || '';
+    return `
+      <button type="button" class="photo-tile" data-index="${i}" aria-label="${(item.title || 'Photo').replace(/"/g, '&quot;')}">
+        <img src="${cover}" alt="${(item.title || '').replace(/"/g, '&quot;')}" loading="lazy">
+        ${caption ? `<span class="photo-caption">${caption}</span>` : ''}
+      </button>`;
+  }).join('');
+
+  initLightbox(el, list);
+}
+
+function initLightbox(container, list) {
+  let current = 0;
+  const overlay = document.createElement('div');
+  overlay.className = 'lightbox';
+  overlay.innerHTML = `
+    <button type="button" class="lightbox-close" aria-label="Close">&times;</button>
+    <button type="button" class="lightbox-prev" aria-label="Previous photo">&lsaquo;</button>
+    <button type="button" class="lightbox-next" aria-label="Next photo">&rsaquo;</button>
+    <figure class="lightbox-figure">
+      <img class="lightbox-img" src="" alt="">
+      <figcaption class="lightbox-caption"></figcaption>
+    </figure>`;
+  document.body.appendChild(overlay);
+
+  const imgEl = overlay.querySelector('.lightbox-img');
+  const capEl = overlay.querySelector('.lightbox-caption');
+  const showNav = list.length > 1;
+  overlay.querySelector('.lightbox-prev').style.display = showNav ? '' : 'none';
+  overlay.querySelector('.lightbox-next').style.display = showNav ? '' : 'none';
+
+  function show(index) {
+    current = (index + list.length) % list.length;
+    const item = list[current];
+    imgEl.src = entryImages(item)[0] || '';
+    imgEl.alt = item.title || '';
+    capEl.textContent = item.caption || item.title || '';
+    overlay.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    // The sticky header can end up compositing above a fixed z-index:200
+    // overlay in some browsers regardless of z-index — hiding it outright
+    // while the modal is open sidesteps that instead of fighting it.
+    document.body.classList.add('lightbox-open');
+  }
+
+  function close() {
+    overlay.classList.remove('is-open');
+    document.body.style.overflow = '';
+    document.body.classList.remove('lightbox-open');
+  }
+
+  container.querySelectorAll('.photo-tile').forEach(tile => {
+    tile.addEventListener('click', () => show(parseInt(tile.dataset.index, 10)));
+  });
+  overlay.querySelector('.lightbox-close').addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  overlay.querySelector('.lightbox-prev').addEventListener('click', () => show(current - 1));
+  overlay.querySelector('.lightbox-next').addEventListener('click', () => show(current + 1));
+  document.addEventListener('keydown', (e) => {
+    if (!overlay.classList.contains('is-open')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowLeft' && showNav) show(current - 1);
+    if (e.key === 'ArrowRight' && showNav) show(current + 1);
+  });
 }
 
 function renderSpotlight(containerId, spotlight) {
@@ -72,9 +200,18 @@ function renderAudiobooks(containerId, list) {
   }
 
   el.innerHTML = list.map(item => {
-    const linkHtml = item.link
-      ? `<a class="listen-link" href="${item.link}" target="_blank" rel="noopener noreferrer">${item.linkLabel || ('Listen to ' + item.title)}</a>`
+    const images = entryImages(item);
+    const imgHtml = images.length
+      ? `<div class="thumb-row audio-thumb-row">${images.map(src => `<img class="thumb" src="${src}" alt="${item.title}">`).join('')}</div>`
       : '';
+
+    const links = entryLinks(item);
+    const linksHtml = links.length
+      ? `<div class="link-row">${links.map(l =>
+          `<a class="listen-link" href="${l.url}" target="_blank" rel="noopener noreferrer">${l.label || ('Listen to ' + item.title)}</a>`
+        ).join('')}</div>`
+      : '';
+
     const quoteHtml = item.quote
       ? `<blockquote>&ldquo;${item.quote}&rdquo;<span class="attr">— ${item.byline || ''}, <em>${item.title}</em></span></blockquote>`
       : '';
@@ -84,12 +221,13 @@ function renderAudiobooks(containerId, list) {
 
     return `
       <article class="audio-entry">
+        ${imgHtml}
         <h2>${item.title}</h2>
         ${item.byline ? `<p class="sub">${item.byline}</p>` : ''}
         ${item.bio ? `<p class="desc">${item.bio}</p>` : ''}
         ${quoteHtml}
         ${reflectionsHtml}
-        ${linkHtml}
+        ${linksHtml}
       </article>`;
   }).join('');
 

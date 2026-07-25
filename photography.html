@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quotes — Your Daily Presence</title>
+<title>Photography — Your Daily Presence</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/favicon-180.png">
@@ -26,20 +26,20 @@
       <a href="index.html">Home</a>
       <a href="myself.html">Myself</a>
       <a href="books.html">Books</a>
-      <a href="quotes.html" class="active">Quotes</a>
+      <a href="quotes.html">Quotes</a>
       <a href="audiobooks.html">Audiobooks</a>
       <a href="to-think-about.html">To Think About</a>
       <a href="music.html">Music</a>
-      <a href="photography.html">Photography</a>
+      <a href="photography.html" class="active">Photography</a>
     </nav>
   </div>
 </header>
 
-<main class="wrap">
+<main class="wrap-wide">
   <section class="section-intro">
-    <p class="eyebrow">Quotes &amp; Thoughts</p>
-    <h1>Words I keep returning to</h1>
-    <p>Lines from books, teachers and conversations, alongside a note on why each one stuck.</p>
+    <p class="eyebrow">Photography</p>
+    <h1>Through My Lens</h1>
+    <p>Moments and scenes that caught my eye along the way — click any photo for a closer look.</p>
   </section>
 
   <div class="divider">
@@ -51,15 +51,7 @@
     </svg>
   </div>
 
-  <div class="search-bar">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-      <circle cx="11" cy="11" r="7"/>
-      <path d="M21 21l-4.3-4.3"/>
-    </svg>
-    <input type="text" id="search-input" placeholder="Search quotes...">
-  </div>
-
-  <div class="entries quotes" id="entries"></div>
+  <div class="photo-grid" id="photo-grid"></div>
 </main>
 
 <footer class="site">
@@ -102,9 +94,8 @@
 <script src="data.js"></script>
 <script src="render.js"></script>
 <script>
-  fetchDynamicEntries('quotes').then(dynamicQuotes => {
-    renderEntries('entries', dynamicQuotes.concat(QUOTES), 'author');
-    initSearch('search-input', [{ containerId: 'entries', itemSelector: '.entry' }]);
+  fetchDynamicEntries('photography').then(dynamicPhotos => {
+    renderPhotos('photo-grid', dynamicPhotos.concat(PHOTOS));
   });
 </script>
 </body>
