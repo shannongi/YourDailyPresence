@@ -311,6 +311,113 @@ const MUSIC = [
   },
 ];
 
+// Shown on the Photography page as a grid — click a photo for a closer
+// look. Add photos here, or through /admin. Run each photo through
+// `scripts/watermark.py` first (see README) so the site's mark is baked
+// into the file itself before you link to it here.
+const PHOTOS = [
+  {
+    title: "Frost and Sunlight",
+    images: ["assets/photography/frosted-field-sun.jpg"],
+    caption: "A cold morning across the field, the light breaking through the trees.",
+  },
+  {
+    title: "Morning Fog",
+    images: ["assets/photography/misty-forest-light.jpg"],
+    caption: "Sunlight finding its way through the mist.",
+  },
+  {
+    title: "Quiet Field at Dusk",
+    images: ["assets/photography/frosted-field-dusk.jpg"],
+    caption: "The frost catching the day's last light.",
+  },
+  {
+    title: "Sunrise Through Frost",
+    images: ["assets/photography/sunrise-frost.jpg"],
+    caption: "The sun just clearing the ridge, frost still holding on.",
+  },
+  {
+    title: "Old Growth",
+    images: ["assets/photography/forest-deadfall.jpg"],
+    caption: "A fallen tree, long since returned to moss.",
+  },
+  {
+    title: "Goldenrod in Winter",
+    images: ["assets/photography/goldenrod-sky.jpg"],
+    caption: "What's left standing once the color's gone.",
+  },
+  {
+    title: "Light Through the Canopy",
+    images: ["assets/photography/sunbeam-canopy.jpg"],
+    caption: "Sunbeams cutting through moss and leaves.",
+  },
+  {
+    title: "Roots and Sunlight",
+    images: ["assets/photography/roots-and-sunlight.jpg"],
+    caption: "Looking up through the trees at a sunburst above old roots.",
+  },
+  {
+    title: "Sun Over the Pond",
+    images: ["assets/photography/sun-over-the-pond.jpg"],
+    caption: "Light breaking through the leaves over still water.",
+  },
+  {
+    title: "The Fallen Giant",
+    images: ["assets/photography/fallen-giant.jpg"],
+    caption: "A massive fallen trunk catching the morning sun.",
+  },
+  {
+    title: "Misty Trail",
+    images: ["assets/photography/misty-trail.jpg"],
+    caption: "Sunlight filtering through ferns along a quiet path.",
+  },
+  {
+    title: "Forest Path",
+    images: ["assets/photography/forest-path-light.jpg"],
+    caption: "A mossy trail lit by rays through the trees.",
+  },
+  {
+    title: "Canopy Starburst",
+    images: ["assets/photography/canopy-starburst.jpg"],
+    caption: "Sunlight bursting through the treetops.",
+  },
+  {
+    title: "Breaking Storm",
+    images: ["assets/photography/storm-light.jpg"],
+    caption: "Sun piercing through storm clouds over the fields.",
+  },
+  {
+    title: "Wild Bloom",
+    images: ["assets/photography/wildflower-white.jpg"],
+    caption: "A small white wildflower catching the light.",
+  },
+  {
+    title: "Queen Anne's Lace",
+    images: ["assets/photography/queen-annes-lace.jpg"],
+    caption: "Delicate white blossoms in the underbrush.",
+  },
+  {
+    title: "Dewdrop Web",
+    images: ["assets/photography/dewdrop-web.jpg"],
+    caption: "A spider's web strung with morning dew.",
+  },
+  {
+    title: "Honeysuckle",
+    images: ["assets/photography/honeysuckle.jpg"],
+    caption: "Wild honeysuckle in bloom.",
+  },
+  {
+    title: "Winter Meadow",
+    images: ["assets/photography/winter-meadow-sun.jpg"],
+    caption: "Dried goldenrod glowing under a winter sun.",
+  },
+  // {
+  //   title: "Short title",
+  //   images: ["assets/photography/example.jpg"],
+  //   caption: "Optional longer caption shown in the lightbox.",
+  // },
+];
+
 // Shown on the To Think About page.
 const TO_THINK_ABOUT = {
   book: {

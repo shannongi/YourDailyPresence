@@ -54,6 +54,29 @@ body::before {
   pointer-events: none;
 }
 
+/* Soft glow over the background image, slowly breathing and drifting
+   through warm tones (gold to a rose-maroon) rather than a hard color swap. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 24%, rgba(184, 134, 60, 0.55), transparent 55%);
+  mix-blend-mode: soft-light;
+  z-index: -1;
+  pointer-events: none;
+  animation: glow-shift 26s ease-in-out infinite;
+}
+
+@keyframes glow-shift {
+  0%   { opacity: 0.35; filter: hue-rotate(0deg); }
+  50%  { opacity: 0.65; filter: hue-rotate(-34deg); }
+  100% { opacity: 0.35; filter: hue-rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after { animation: none; opacity: 0.45; }
+}
+
 h1, h2, h3, .display {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 500;
@@ -66,6 +89,15 @@ a { color: inherit; }
 
 .wrap {
   max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* Wider column for content that wants more breathing room, like the
+   photography grid — everything else stays at the narrower --max for
+   comfortable reading width. */
+.wrap-wide {
+  max-width: var(--max-wide);
   margin: 0 auto;
   padding: 0 28px;
 }
@@ -340,6 +372,49 @@ nav.site a.active {
   .tiles { grid-template-columns: 1fr; }
 }
 
+/* ---------- Wide Photography tile (spans 2 columns, thumbnail strip) ---------- */
+
+.tile-photography {
+  grid-column: 1 / -1;
+  max-width: calc((200% - 18px) / 3);
+  margin: 0 auto;
+  text-align: left;
+  padding: 26px 28px;
+}
+
+.tile-photography-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.tile-photography-header svg {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+.tile-photography-header h3 { font-size: 1.3rem; }
+.tile-photography-header p { color: var(--ink-soft); font-size: 0.88rem; margin-top: 6px; }
+
+.tile-photography-thumbs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.tile-photography-thumbs img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid var(--line);
+}
+
+@media (max-width: 600px) {
+  .tile-photography { grid-column: auto; max-width: none; }
+  .tile-photography-thumbs { grid-template-columns: repeat(4, 1fr); }
+  .tile-photography-thumbs img:nth-child(5) { display: none; }
+}
+
 /* ---------- Entry cards ---------- */
 
 .entries {
@@ -382,6 +457,39 @@ nav.site a.active {
   text-align: center;
   color: var(--gold-text);
 }
+
+/* ---------- Multiple images on one entry (admin "+ Add another image") ---------- */
+
+.thumb-row {
+  width: 108px;
+  height: 108px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.thumb-row .thumb { width: 100%; height: 100%; }
+
+@media (max-width: 560px) {
+  .thumb-row { width: 72px; height: 72px; }
+}
+
+/* ---------- Extra links beyond the primary title link ---------- */
+
+.extra-links {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.extra-link {
+  font-size: 0.78rem;
+  color: var(--gold-text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1px;
+  transition: color .2s ease, border-color .2s ease;
+}
+.extra-link:hover { color: var(--maroon); border-color: var(--gold); }
 
 .entry .meta {
   font-size: 0.74rem;
@@ -438,6 +546,7 @@ nav.site a.active {
 }
 .entries.quotes .entry .thumb { width: 72px; height: 72px; }
 .entries.quotes .entry .thumb.symbol span { font-size: 1.05rem; }
+.entries.quotes .entry .thumb-row { width: 72px; height: 72px; }
 
 .entries.quotes .entry h2 {
   font-family: 'Cormorant Garamond', serif;
@@ -490,7 +599,26 @@ footer.site {
   letter-spacing: 0.04em;
 }
 
-footer.site .om { color: var(--gold); margin-bottom: 10px; display: block; font-size: 1.1rem; }
+.mantra-emblem { margin-bottom: 12px; }
+.mantra-emblem .fol-mark { width: 34px; height: 34px; color: var(--gold); }
+
+/* footer.site prefix needed: the generic "footer.site p" rule below
+   (1 class + 2 elements) otherwise outranks a bare ".mantra-*" class
+   (1 class + 0 elements) at the element-count tiebreaker. */
+footer.site .mantra-devanagari {
+  font-family: 'Noto Serif Devanagari', serif;
+  font-size: 1.05rem;
+  color: var(--maroon);
+  margin: 0 0 4px;
+}
+
+footer.site .mantra-translit {
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-text);
+  margin: 0 0 16px;
+}
 
 footer.site p { margin: 0 0 14px; }
 
@@ -705,6 +833,20 @@ a:focus-visible, .tile:focus-visible {
 }
 .audio-entry:first-child { border-top: 1px dashed var(--line); }
 
+.audio-thumb-row {
+  width: 100%;
+  max-width: 260px;
+  height: 130px;
+  margin-bottom: 18px;
+  gap: 6px;
+}
+.audio-thumb-row .thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 1px solid var(--line);
+}
+
 .audio-entry h2 {
   font-size: 1.6rem;
   margin-bottom: 4px;
@@ -773,6 +915,14 @@ a:focus-visible, .tile:focus-visible {
   border-color: var(--gold-text);
   color: #fff;
 }
+
+.link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.link-row .listen-link { margin-top: 0; }
 
 /* ---------- To Think About ---------- */
 
@@ -1021,3 +1171,115 @@ a:focus-visible, .tile:focus-visible {
 }
 .shuffle-btn svg { width: 14px; height: 14px; }
 .shuffle-btn:hover { border-color: var(--gold); color: var(--gold-text); }
+
+/* ---------- Photography: Instagram-style grid ---------- */
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding-bottom: 60px;
+}
+
+.photo-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+  background: #EFE9DB;
+  cursor: pointer;
+}
+.photo-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .4s ease;
+}
+.photo-tile:hover img,
+.photo-tile:focus-visible img { transform: scale(1.05); }
+
+.photo-caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 22px 12px 10px;
+  background: linear-gradient(to top, rgba(20, 12, 6, 0.7), transparent);
+  color: #fff;
+  font-size: 0.76rem;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.photo-tile:hover .photo-caption,
+.photo-tile:focus-visible .photo-caption { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 560px) {
+  .photo-grid { gap: 2px; }
+}
+
+/* ---------- Photography: lightbox ---------- */
+
+/* Chromium (and possibly others) can composite a sticky-positioned header
+   above a later fixed z-index:200 element regardless of z-index order —
+   hiding the header outright while a modal is open sidesteps that. */
+body.lightbox-open header.site {
+  visibility: hidden;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 12, 6, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+  z-index: 200;
+}
+.lightbox.is-open { opacity: 1; pointer-events: auto; }
+
+.lightbox-figure {
+  max-width: min(92vw, 900px);
+  max-height: 88vh;
+  margin: 0;
+  text-align: center;
+}
+.lightbox-img {
+  max-width: 100%;
+  max-height: 76vh;
+  object-fit: contain;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.lightbox-caption {
+  color: #F4EEDD;
+  font-size: 0.9rem;
+  margin-top: 14px;
+  font-style: italic;
+}
+
+.lightbox-close, .lightbox-prev, .lightbox-next {
+  position: absolute;
+  background: transparent;
+  border: none;
+  color: #F4EEDD;
+  cursor: pointer;
+  font-size: 1.8rem;
+  line-height: 1;
+  padding: 10px;
+  transition: color .2s ease;
+}
+.lightbox-close { top: 16px; right: 20px; }
+.lightbox-close:hover, .lightbox-prev:hover, .lightbox-next:hover { color: var(--gold); }
+.lightbox-prev { left: 10px; top: 50%; transform: translateY(-50%); font-size: 2.4rem; }
+.lightbox-next { right: 10px; top: 50%; transform: translateY(-50%); font-size: 2.4rem; }
+
+@media (max-width: 560px) {
+  .lightbox-prev { left: 2px; }
+  .lightbox-next { right: 2px; }
+}

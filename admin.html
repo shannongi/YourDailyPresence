@@ -25,6 +25,16 @@
   }
   .admin-field input:focus, .admin-field textarea:focus, .admin-field select:focus { border-color: var(--gold); }
   .admin-field textarea { resize: vertical; min-height: 70px; }
+  .repeat-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+  .repeat-row { display: flex; gap: 8px; align-items: center; }
+  .repeat-row .repeat-input {
+    flex: 1; min-width: 0; box-sizing: border-box; font-family: 'Jost', sans-serif; font-size: 0.9rem;
+    color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+    padding: 9px 12px; outline: none;
+  }
+  .repeat-row .repeat-input:focus { border-color: var(--gold); }
+  .repeat-row .repeat-remove { flex-shrink: 0; padding: 5px 10px; }
+  .add-row-btn { margin-top: 2px; }
   .admin-btn {
     display: block; width: 100%; font-family: 'Jost', sans-serif; font-size: 0.95rem; font-weight: 500;
     color: #fff; background: var(--maroon); border: none; border-radius: 999px; padding: 13px;
@@ -99,6 +109,7 @@
         <option value="quotes">Quotes</option>
         <option value="audiobooks">Audiobooks</option>
         <option value="music">Music</option>
+        <option value="photography">Photography</option>
       </select>
     </div>
 
@@ -121,7 +132,31 @@
 </main>
 
 <footer class="site">
-  <span class="om">ॐ</span>
+  <div class="mantra-emblem" aria-hidden="true">
+    <svg class="fol-mark" viewBox="0 0 66.0 66.0" fill="none" stroke="currentColor" stroke-width="0.7">
+      <circle cx="33.00" cy="33.00" r="6.2"/>
+      <circle cx="45.40" cy="33.00" r="6.2"/>
+      <circle cx="39.20" cy="43.74" r="6.2"/>
+      <circle cx="26.80" cy="43.74" r="6.2"/>
+      <circle cx="20.60" cy="33.00" r="6.2"/>
+      <circle cx="26.80" cy="22.26" r="6.2"/>
+      <circle cx="39.20" cy="22.26" r="6.2"/>
+      <circle cx="57.80" cy="33.00" r="6.2"/>
+      <circle cx="45.40" cy="54.48" r="6.2"/>
+      <circle cx="20.60" cy="54.48" r="6.2"/>
+      <circle cx="8.20" cy="33.00" r="6.2"/>
+      <circle cx="20.60" cy="11.52" r="6.2"/>
+      <circle cx="45.40" cy="11.52" r="6.2"/>
+      <circle cx="51.60" cy="43.74" r="6.2"/>
+      <circle cx="33.00" cy="54.48" r="6.2"/>
+      <circle cx="14.40" cy="43.74" r="6.2"/>
+      <circle cx="14.40" cy="22.26" r="6.2"/>
+      <circle cx="33.00" cy="11.52" r="6.2"/>
+      <circle cx="51.60" cy="22.26" r="6.2"/>
+    </svg>
+  </div>
+  <p class="mantra-devanagari">ॐ मणि पद्मे हूँ</p>
+  <p class="mantra-translit">Om Mani Padme Hum</p>
   <p>yourdailypresence.com</p>
 </footer>
 
@@ -151,15 +186,15 @@
     books: [
       { key: 'title', label: 'Title', required: true },
       { key: 'author', label: 'Author' },
-      { key: 'image', label: 'Image URL' },
-      { key: 'link', label: 'Link (Goodreads, store page, etc.)' },
+      { key: 'images', label: 'Images', type: 'imageList' },
+      { key: 'links', label: 'Links', type: 'linkList' },
       { key: 'note', label: 'Note', type: 'textarea' },
     ],
     quotes: [
       { key: 'title', label: 'Quote', required: true, type: 'textarea' },
       { key: 'author', label: 'Source / Author' },
       { key: 'symbol', label: 'Devanagari symbol (optional, e.g. ॐ)' },
-      { key: 'link', label: 'Link (optional)' },
+      { key: 'links', label: 'Links (optional)', type: 'linkList' },
       { key: 'note', label: 'Your note', type: 'textarea' },
     ],
     audiobooks: [
@@ -167,35 +202,102 @@
       { key: 'byline', label: 'Author' },
       { key: 'bio', label: 'Author bio', type: 'textarea' },
       { key: 'quote', label: 'A short quote (optional)' },
-      { key: 'link', label: 'Audible link' },
-      { key: 'linkLabel', label: 'Link button text' },
+      { key: 'images', label: 'Images (optional)', type: 'imageList' },
+      { key: 'links', label: 'Links (Audible, Spotify, etc.)', type: 'linkList' },
     ],
     music: [
       { key: 'title', label: 'Title', required: true },
       { key: 'byline', label: 'Artist' },
       { key: 'bio', label: 'Artist bio', type: 'textarea' },
-      { key: 'link', label: 'Link (Spotify, etc.)' },
-      { key: 'linkLabel', label: 'Link button text' },
+      { key: 'images', label: 'Images (optional)', type: 'imageList' },
+      { key: 'links', label: 'Links (Spotify, etc.)', type: 'linkList' },
+    ],
+    photography: [
+      { key: 'title', label: 'Title / short caption', required: true },
+      { key: 'images', label: 'Images — already watermarked (see scripts/watermark.py)', type: 'imageList' },
+      { key: 'caption', label: 'Longer caption (optional, shown in the lightbox)', type: 'textarea' },
     ],
   };
 
+  // Building block for one row inside a repeatable "images" or "links" field.
+  function repeatRowHtml(kind, value) {
+    const esc = (s) => (s || '').replace(/"/g, '&quot;');
+    if (kind === 'imageList') {
+      return `
+        <div class="repeat-row">
+          <input type="text" class="repeat-input repeat-url" placeholder="Image URL" value="${esc(value)}">
+          <button type="button" class="mini-btn danger repeat-remove" aria-label="Remove">×</button>
+        </div>`;
+    }
+    const url = (value && value.url) || '';
+    const label = (value && value.label) || '';
+    return `
+      <div class="repeat-row link-repeat-row">
+        <input type="text" class="repeat-input repeat-url" placeholder="URL" value="${esc(url)}">
+        <input type="text" class="repeat-input repeat-label" placeholder="Button text (optional)" value="${esc(label)}">
+        <button type="button" class="mini-btn danger repeat-remove" aria-label="Remove">×</button>
+      </div>`;
+  }
+
   function renderFields(section, values) {
     const fields = FIELD_SETS[section];
-    dynamicFields.innerHTML = fields.map(f => `
-      <div class="admin-field">
-        <label for="f-${f.key}">${f.label}${f.required ? ' *' : ''}</label>
-        ${f.type === 'textarea'
-          ? `<textarea id="f-${f.key}" ${f.required ? 'required' : ''}></textarea>`
-          : `<input type="text" id="f-${f.key}" ${f.required ? 'required' : ''}>`}
-      </div>
-    `).join('');
-    if (values) {
-      fields.forEach(f => {
-        const el = document.getElementById('f-' + f.key);
-        if (el) el.value = values[f.key] || '';
-      });
-    }
+
+    dynamicFields.innerHTML = fields.map(f => {
+      if (f.type === 'imageList' || f.type === 'linkList') {
+        return `
+          <div class="admin-field">
+            <label>${f.label}</label>
+            <div class="repeat-rows" id="rows-${f.key}" data-kind="${f.type}"></div>
+            <button type="button" class="mini-btn add-row-btn" data-repeat-add="${f.key}">+ Add another ${f.type === 'imageList' ? 'image' : 'link'}</button>
+          </div>`;
+      }
+      return `
+        <div class="admin-field">
+          <label for="f-${f.key}">${f.label}${f.required ? ' *' : ''}</label>
+          ${f.type === 'textarea'
+            ? `<textarea id="f-${f.key}" ${f.required ? 'required' : ''}></textarea>`
+            : `<input type="text" id="f-${f.key}" ${f.required ? 'required' : ''}>`}
+        </div>`;
+    }).join('');
+
+    fields.forEach(f => {
+      if (f.type === 'imageList' || f.type === 'linkList') {
+        const rows = document.getElementById('rows-' + f.key);
+        let items;
+        if (f.type === 'imageList') {
+          items = values && ((values.images && values.images.length) ? values.images : (values.image ? [values.image] : []));
+        } else {
+          items = values && ((values.links && values.links.length) ? values.links : (values.link ? [{ url: values.link, label: values.linkLabel || '' }] : []));
+        }
+        if (!items || items.length === 0) items = [f.type === 'imageList' ? '' : { url: '', label: '' }];
+        rows.innerHTML = items.map(v => repeatRowHtml(f.type, v)).join('');
+        return;
+      }
+      const el = document.getElementById('f-' + f.key);
+      if (el) el.value = (values && values[f.key]) || '';
+    });
   }
+
+  // Add/remove repeat rows (event delegation, since rows come and go dynamically).
+  dynamicFields.addEventListener('click', (e) => {
+    const addBtn = e.target.closest('[data-repeat-add]');
+    if (addBtn) {
+      const rows = document.getElementById('rows-' + addBtn.dataset.repeatAdd);
+      const kind = rows.dataset.kind;
+      rows.insertAdjacentHTML('beforeend', repeatRowHtml(kind, kind === 'imageList' ? '' : { url: '', label: '' }));
+      return;
+    }
+    const removeBtn = e.target.closest('.repeat-remove');
+    if (removeBtn) {
+      const row = removeBtn.closest('.repeat-row');
+      const rows = row.parentElement;
+      row.remove();
+      if (rows.children.length === 0) {
+        const kind = rows.dataset.kind;
+        rows.insertAdjacentHTML('beforeend', repeatRowHtml(kind, kind === 'imageList' ? '' : { url: '', label: '' }));
+      }
+    }
+  });
 
   function enterEditMode(section, id) {
     const item = (allEntries[section] || []).find(e => e.id === id);
@@ -254,7 +356,18 @@
     const fields = FIELD_SETS[section];
     const entry = {};
     fields.forEach(f => {
-      entry[f.key] = document.getElementById('f-' + f.key).value.trim();
+      if (f.type === 'imageList') {
+        const rows = document.getElementById('rows-' + f.key);
+        entry[f.key] = [...rows.querySelectorAll('.repeat-url')].map(i => i.value.trim()).filter(Boolean);
+      } else if (f.type === 'linkList') {
+        const rows = document.getElementById('rows-' + f.key);
+        entry[f.key] = [...rows.querySelectorAll('.repeat-row')].map(row => ({
+          url: row.querySelector('.repeat-url').value.trim(),
+          label: row.querySelector('.repeat-label').value.trim(),
+        })).filter(l => l.url);
+      } else {
+        entry[f.key] = document.getElementById('f-' + f.key).value.trim();
+      }
     });
 
     formMsg.className = 'admin-msg';
