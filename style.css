@@ -21,9 +21,12 @@
   --ink-soft: #4A3A2E;
   --surface: rgba(255, 255, 255, 0.55);
   --surface-hover: rgba(255, 255, 255, 0.88);
-  --shadow: 0 16px 32px -20px rgba(31, 17, 8, 0.35);
+  --shadow: 0 2px 4px -2px rgba(31, 17, 8, 0.05),
+            0 8px 16px -4px rgba(31, 17, 8, 0.1),
+            0 24px 32px -8px rgba(31, 17, 8, 0.15);
   --max: 760px;
   --max-wide: 1040px;
+  --snappy: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * { box-sizing: border-box; }
@@ -83,6 +86,12 @@ h1, h2, h3, .display {
   letter-spacing: 0.01em;
   color: var(--ink);
   margin: 0;
+  line-height: 1.1;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
 }
 
 a { color: inherit; }
@@ -345,7 +354,7 @@ nav.site a.active {
   text-align: center;
   text-decoration: none;
   overflow: hidden;
-  transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease, background-color .25s ease;
+  transition: border-color 0.4s var(--snappy), transform 0.4s var(--snappy), box-shadow 0.4s var(--snappy), background-color 0.4s var(--snappy);
 }
 .tile::before {
   content: "";
@@ -1109,7 +1118,7 @@ a:focus-visible, .tile:focus-visible {
   border: 1px solid var(--line);
   padding: 30px 28px;
   position: relative;
-  transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease, background-color .25s ease;
+  transition: border-color 0.4s var(--snappy), transform 0.4s var(--snappy), box-shadow 0.4s var(--snappy), background-color 0.4s var(--snappy);
 }
 .spotlight-today-card:hover {
   border-color: var(--gold);
@@ -1228,6 +1237,11 @@ a:focus-visible, .tile:focus-visible {
    hiding the header outright while a modal is open sidesteps that. */
 body.lightbox-open header.site {
   visibility: hidden;
+}
+
+body.lightbox-open {
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .lightbox {

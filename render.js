@@ -1,3 +1,10 @@
+// Helper to route local images through Netlify Image CDN for auto-compression/resizing
+function optimizeImage(url, width = 800) {
+  if (!url || url.startsWith('http')) return url;
+  const safeUrl = url.startsWith('/') ? url : '/' + url;
+  return `/.netlify/images?url=${safeUrl}&w=${width}&fm=avif`;
+}
+
 // Renders arrays from data.js into entry cards.
 // You shouldn't need to edit this file — edit data.js instead.
 
@@ -14,8 +21,8 @@ function renderEntries(containerId, list, subLabelKey) {
     const images = entryImages(item);
     const img = images.length
       ? (images.length > 1
-          ? `<div class="thumb-row">${images.map(src => `<img class="thumb" src="${src}" alt="${item.title}">`).join('')}</div>`
-          : `<img class="thumb" src="${images[0]}" alt="${item.title}">`)
+          ? `<div class="thumb-row">${images.map(src => `<img class="thumb" src="${optimizeImage(src, 300)}" alt="${item.title}">`).join('')}</div>`
+          : `<img class="thumb" src="${optimizeImage(images[0], 300)}" alt="${item.title}">`)
       : (item.symbol
           ? `<div class="thumb symbol" aria-hidden="true"><span>${item.symbol}</span></div>`
           : `<div class="thumb" aria-hidden="true"></div>`);
@@ -79,7 +86,7 @@ function renderRandomPhotoThumbs(containerId, list, count) {
   el.innerHTML = picks.map(item => {
     const src = entryImages(item)[0] || '';
     const alt = (item.title || '').replace(/"/g, '&quot;');
-    return `<img src="${src}" alt="${alt}" loading="lazy">`;
+    return `<img src="${optimizeImage(src, 400)}" alt="${alt}" loading="lazy">`;
   }).join('');
 }
 
@@ -99,7 +106,7 @@ function renderPhotos(containerId, list) {
     const caption = item.caption || item.title || '';
     return `
       <button type="button" class="photo-tile" data-index="${i}" aria-label="${(item.title || 'Photo').replace(/"/g, '&quot;')}">
-        <img src="${cover}" alt="${(item.title || '').replace(/"/g, '&quot;')}" loading="lazy">
+        <img src="${optimizeImage(cover, 600)}" alt="${(item.title || '').replace(/"/g, '&quot;')}" loading="lazy">
         ${caption ? `<span class="photo-caption">${caption}</span>` : ''}
       </button>`;
   }).join('');
@@ -130,7 +137,7 @@ function initLightbox(container, list) {
   function show(index) {
     current = (index + list.length) % list.length;
     const item = list[current];
-    imgEl.src = entryImages(item)[0] || '';
+    imgEl.src = optimizeImage(entryImages(item)[0] || '', 1600);
     imgEl.alt = item.title || '';
     capEl.textContent = item.caption || item.title || '';
     overlay.classList.add('is-open');
@@ -202,7 +209,7 @@ function renderAudiobooks(containerId, list) {
   el.innerHTML = list.map(item => {
     const images = entryImages(item);
     const imgHtml = images.length
-      ? `<div class="thumb-row audio-thumb-row">${images.map(src => `<img class="thumb" src="${src}" alt="${item.title}">`).join('')}</div>`
+      ? `<div class="thumb-row audio-thumb-row">${images.map(src => `<img class="thumb" src="${optimizeImage(src, 300)}" alt="${item.title}">`).join('')}</div>`
       : '';
 
     const links = entryLinks(item);
