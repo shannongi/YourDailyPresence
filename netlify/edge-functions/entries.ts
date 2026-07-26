@@ -26,7 +26,7 @@
 //   should be gone for good.
 // ============================================================
 
-import { getStore } from "npm:@netlify/blobs@8";
+import { getStore } from "@netlify/blobs";
 
 const SECTIONS = ["books", "quotes", "audiobooks", "music", "photography"];
 const STORE_NAME = "content";
