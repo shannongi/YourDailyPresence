@@ -516,7 +516,7 @@ nav.site a.active {
 .entry h2 a {
   color: var(--maroon);
   text-decoration: none;
-  border-bottom: 2px solid var(--gold);
+  border-bottom: 1px solid var(--line);
   padding-bottom: 1px;
   transition: color .2s ease, border-color .2s ease;
 }
@@ -524,10 +524,12 @@ nav.site a.active {
 .entry h2 a::after {
   content: " ↗";
   font-size: 0.75em;
-  color: var(--gold);
+  color: var(--ink-soft);
+  transition: color .2s ease;
 }
 
-.entry h2 a:hover { color: var(--gold-text); border-color: var(--maroon); }
+.entry h2 a:hover { color: var(--gold-text); border-color: var(--gold); }
+.entry h2 a:hover::after { color: var(--gold); }
 
 .entry p.desc {
   color: var(--ink-soft);
@@ -724,7 +726,7 @@ a:focus-visible, .tile:focus-visible {
   font-size: 0.78rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold-text);
 }
 
 /* ---------- Author Spotlight (Books page) ---------- */
@@ -790,15 +792,17 @@ a:focus-visible, .tile:focus-visible {
 .spotlight-book h3 a {
   color: var(--maroon);
   text-decoration: none;
-  border-bottom: 2px solid var(--gold);
+  border-bottom: 1px solid var(--line);
   padding-bottom: 1px;
 }
 .spotlight-book h3 a::after {
   content: " ↗";
   font-size: 0.75em;
-  color: var(--gold);
+  color: var(--ink-soft);
+  transition: color .2s ease;
 }
-.spotlight-book h3 a:hover { color: var(--gold-text); border-color: var(--maroon); }
+.spotlight-book h3 a:hover { color: var(--gold-text); border-color: var(--gold); }
+.spotlight-book h3 a:hover::after { color: var(--gold); }
 
 .spotlight-book h3 .year {
   font-size: 0.75rem;
